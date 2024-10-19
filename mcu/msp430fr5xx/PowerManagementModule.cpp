@@ -40,6 +40,8 @@ PowerManagementModule::PowerManagementModule(sc_module_name name,
   m_vOff = Config::get().getDouble("PMMOff");
   m_vMax = Config::get().getDouble("VMAX");
 
+  m_powerOnResetCount = 0;
+
   // Note: correct values are written during reset()
   m_regs.addRegister(OFS_PMMCTL0, 0x9640, RegisterFile::AccessMode::READ_WRITE);
   m_regs.addRegister(OFS_PMMCTL1, 0x9600, RegisterFile::AccessMode::READ_WRITE);
@@ -102,6 +104,7 @@ void PowerManagementModule::process(void) {
         m_bootCurrentState->setCurrent(0.0);
 
         m_isOn = true;
+        m_powerOnResetCount++;
         pwrGood.write(m_isOn);
 
         irq.write(true);  // Power-On Reset

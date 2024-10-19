@@ -82,6 +82,9 @@ SCA_TDF_MODULE(CapacitorIdeal) {
 
   void processing() {
     m_crntVoltage += m_timestep * (i_in.read() - i_out.read()) / m_capacitance;
+    if (m_crntVoltage <= 0) {
+        m_crntVoltage = 0;
+    }
     v.write(m_crntVoltage);
   }
 
@@ -136,6 +139,177 @@ SCA_TDF_MODULE(ConstantCurrentSupplyTDF) {
   sc_core::sc_time m_timestep;  // Evaluation timestep
 };
 
+// SCA_TDF_MODULE(VoltageTraceReplayTDF) {
+//   // Consume voltage
+//   sca_tdf::sca_in<double> v;
+
+//   // Produce contant current
+//   sca_tdf::sca_out<double> i;
+
+//   void set_attributes() { set_timestep(m_timestep); }
+
+//   void initialize(){};
+
+//   void processing() {
+//     // check if the end of the trace is reached
+//     if (m_traceIndex >= m_voltageTrace.size()) {
+//       m_traceIndex = 0;
+//     }
+
+//     double vcap = v.read();
+//     if ((vcap + m_maxStepSize) < m_voltageLimit) {
+//       i.write(deriveCurrentFromVoltage(m_voltageTrace[m_traceIndex], vcap));
+//       m_traceIndex++;
+//     } else {
+//       i.write(0.0);
+//     }
+//   }
+
+//   void ac_processing(){};
+
+//   SCA_CTOR(VoltageTraceReplayTDF) {
+//     m_traceFile = Config::get().getString("VoltageTraceFile");
+//     m_currentSetpoint = Config::get().getDouble("SupplyCurrentLimit");
+//     m_voltageLimit = Config::get().getDouble("SupplyVoltageLimit");
+//     m_timestep = sc_core::sc_time::from_seconds(
+//         Config::get().getDouble("PowerModelTimestep"));
+//     m_maxStepSize =
+//         m_timestep.to_seconds() *
+//         (m_currentSetpoint / Config::get().getDouble("CapacitorValue"));
+//     m_loadResistance = Config::get().getDouble("LoadResistance");
+
+//     readTraceFile(m_traceFile);
+//     m_traceIndex = 0;
+//   };
+
+//  private:
+
+//   void readTraceFile(std::string path)
+//   {
+//     std::ifstream file(path);
+//     if (!file.is_open()) {
+//       throw std::runtime_error("Failed to open trace file: " + path);
+//     }
+
+//     std::string line;
+//     while (std::getline(file, line)) {
+//       try
+//       {
+//         m_voltageTrace.push_back(std::stod(line));
+//       }
+//       catch (const std::invalid_argument& e)
+//       {
+//         std::cerr << "Invalid argument while parsing trace: " << e.what() << '\n';
+//       }
+//     }
+//   }
+  
+//   double deriveCurrentFromVoltage(double voltage, double vcap)
+//   {
+//     return voltage / m_loadResistance;
+//   }
+
+//   std::string m_traceFile;      // trace file path
+//   std::vector<double> m_voltageTrace; // voltage trace
+//   uint32_t m_traceIndex;        // current index in the trace
+//   double m_currentSetpoint;     // [Ampere]
+//   double m_voltageLimit;        // [Volt]
+//   double m_maxStepSize;         // [Volt] Handy to avoid overshoot
+//   double m_loadResistance;      // [Ohm]
+//   sc_core::sc_time m_timestep;  // Evaluation timestep'
+// };
+
+SCA_TDF_MODULE(VoltageTraceReplayTDF) {
+  // Consume voltage
+  sca_tdf::sca_in<double> v;
+
+  // Produce constant current
+  sca_tdf::sca_out<double> i;
+
+  void set_attributes() { set_timestep(m_timestep); }
+
+  void initialize() {
+    m_timeElapsed = 0.0; // Initialize the elapsed time
+  }
+
+  void processing() {
+    // Update elapsed time
+    m_timeElapsed += m_timestep.to_seconds();
+
+    // Check if 1 ms has passed
+    if (m_timeElapsed >= 1e-3) {  // 1 ms = 1e-3 seconds
+      // Move to the next voltage trace value
+      m_traceIndex++;
+
+      // Reset elapsed time
+      m_timeElapsed = 0.0;
+    }
+
+    // check if the end of the trace is reached
+    if (m_traceIndex >= m_voltageTrace.size()) {
+      m_traceIndex = 0;
+    }
+
+    double vcap = v.read();
+    if ((vcap + m_maxStepSize) < m_voltageLimit) {
+      i.write(deriveCurrentFromVoltage(m_voltageTrace[m_traceIndex], vcap));
+    } else {
+      i.write(0.0);
+    }
+  }
+
+  void ac_processing() {}
+
+  SCA_CTOR(VoltageTraceReplayTDF) {
+    m_traceFile = Config::get().getString("VoltageTraceFile");
+    m_currentSetpoint = Config::get().getDouble("SupplyCurrentLimit");
+    m_voltageLimit = Config::get().getDouble("SupplyVoltageLimit");
+    m_timestep = sc_core::sc_time::from_seconds(
+        Config::get().getDouble("PowerModelTimestep"));
+    m_maxStepSize =
+        m_timestep.to_seconds() *
+        (m_currentSetpoint / Config::get().getDouble("CapacitorValue"));
+    m_loadResistance = Config::get().getDouble("LoadResistance");
+
+    readTraceFile(m_traceFile);
+    m_traceIndex = 0;
+    m_timeElapsed = 0.0;  // Initialize the time elapsed
+  };
+
+private:
+
+  void readTraceFile(std::string path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+      throw std::runtime_error("Failed to open trace file: " + path);
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+      try {
+        m_voltageTrace.push_back(std::stod(line));
+      } catch (const std::invalid_argument& e) {
+        std::cerr << "Invalid argument while parsing trace: " << e.what() << '\n';
+      }
+    }
+  }
+
+  double deriveCurrentFromVoltage(double voltage, double vcap) {
+    return voltage / m_loadResistance;
+  }
+
+  std::string m_traceFile;          // trace file path
+  std::vector<double> m_voltageTrace; // voltage trace
+  uint32_t m_traceIndex;            // current index in the trace
+  double m_currentSetpoint;         // [Ampere]
+  double m_voltageLimit;            // [Volt]
+  double m_maxStepSize;             // [Volt] Handy to avoid overshoot
+  double m_loadResistance;          // [Ohm]
+  sc_core::sc_time m_timestep;      // Evaluation timestep
+  double m_timeElapsed;             // Tracks time to ensure each trace value is held for 1 ms
+};
+
+
 SC_MODULE(ExternalCircuitry) {
   sc_core::sc_in<bool> keepAlive{"keepAlive"};
   sc_core::sc_in<double> i_out{"i_out"};
@@ -145,7 +319,7 @@ SC_MODULE(ExternalCircuitry) {
   sc_core::sc_out_resolved v_warn{"v_warn"};
 
   // Modules
-  ConstantCurrentSupplyTDF supply{"supply"};
+  VoltageTraceReplayTDF supply{"supply"};
   CapacitorIdeal c{"c"};
   VoltageDetectorWithOverride svs{"svs"};
 

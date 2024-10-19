@@ -45,6 +45,11 @@ class PowerManagementModule : public BusTarget {
    */
   virtual void end_of_elaboration() override;
 
+  /**
+   * @brief Get the number of power cycles (power-on resets)
+   */
+  unsigned getPowerOnResetCount() const { return m_powerOnResetCount; }
+
  private:
   /* ------ Internal classes ------ */
 
@@ -78,6 +83,9 @@ class PowerManagementModule : public BusTarget {
   double m_vMax;  //! Maximum operating voltage
   bool m_locked;  //! Indicate if registers are locked
   bool m_isOn;    //! Indicate whether output is on
+
+  // a helper variable to count the number of power-on resets
+  unsigned m_powerOnResetCount;
 
   std::vector<double> m_bootCurrentTrace;  // Trace of boot current
   double m_bootCurrentTimeResolution;

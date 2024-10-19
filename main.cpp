@@ -16,6 +16,7 @@
 //#define TARGET_WORD_SIZE 4
 
 #include <spdlog/spdlog.h>
+#include <stdlib.h>
 #include <chrono>
 #include <cstdlib>
 #include <ihex-parser/IntelHexFile.hpp>
@@ -36,6 +37,8 @@
 
 using namespace sc_core;
 
+Board *board;
+
 // clang-format off
 // A dummy module to implement the end_of_simulation callback.
 SC_MODULE(DummyModule){
@@ -49,6 +52,17 @@ SC_MODULE(DummyModule){
    * module destruction.
    */
   virtual void end_of_simulation() override {
+
+    spdlog::info("End of simulation callback called.");
+    spdlog::info("Simulation complete.");
+    unsigned num_power_cycles = board->getMicrocontroller().getPowerOnResetCount();
+    
+    spdlog::info("Number of power cycles: {}", num_power_cycles);
+
+    std::ofstream file(Config::get().getString("PowerCyclesOutPutFile"));
+    file << num_power_cycles << std::endl;
+    file.close();
+
     if (Config::get().getBool("GdbServer")) {
       m_simCtrl->stopServer();
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -73,14 +87,15 @@ int sc_main(int argc, char *argv[]) {
   config.parseFile();
 
   // Instantiate board
-  Board *board;
   const auto &bstring = Config::get().getString("Board");
-  if (bstring == "Cm0TestBoard") {
-    board = new Cm0TestBoard("Cm0TestBoard");
-  } else if (bstring == "Msp430TestBoard") {
+  // if (bstring == "Cm0TestBoard") {
+  //   board = new Cm0TestBoard("Cm0TestBoard");
+  // } else if (bstring == "Msp430TestBoard") {
+  //   board = new Msp430TestBoard("Msp430TestBoard");
+  // } else if (bstring == "Cm0SensorNode") {
+  //   board = new Cm0SensorNode("Cm0SensorNode");
+  if (bstring == "Msp430TestBoard") {
     board = new Msp430TestBoard("Msp430TestBoard");
-  } else if (bstring == "Cm0SensorNode") {
-    board = new Cm0SensorNode("Cm0SensorNode");
   } else {
     SC_REPORT_FATAL(
         "sc_main",

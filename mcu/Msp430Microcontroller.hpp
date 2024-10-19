@@ -201,6 +201,14 @@ class Msp430Microcontroller : public Microcontroller {
    */
   void process(void);
 
+  /**
+   * @brief Get the number of power cycles (power-on resets)
+   * 
+   */
+  virtual unsigned getPowerOnResetCount(void) const override {
+    return pmm->getPowerOnResetCount();
+  }
+
   /* ------ Constants ------ */
 
   /* ------ Private variables ------ */

@@ -111,6 +111,12 @@ class Microcontroller : public sc_core::sc_module {
   virtual void removeBreakpoint(unsigned addr) = 0;
 
   /**
+   * @brief Get the number of power cycles (power-on resets)
+   * 
+   */
+  virtual unsigned getPowerOnResetCount() const = 0;
+
+  /**
    * @brief pc_regnum get the PC register number
    */
   virtual uint32_t pc_regnum() = 0;

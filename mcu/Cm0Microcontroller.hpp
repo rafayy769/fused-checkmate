@@ -164,6 +164,11 @@ public:
     m_cpu.removeBreakpoint(addr);
   }
 
+  // number of power cycles (power-on resets)
+  unsigned getPowerOnResetCount() const {
+    return 1;
+  }
+
 private:
   /**
    * @brief process Monitors output from PMM and resets processor during
