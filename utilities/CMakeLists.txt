@@ -19,20 +19,20 @@ set(SOURCES
   SimulationController.hpp
   )
 
-add_library(Cm0Utilities ${SOURCES})
+# add_library(Cm0Utilities ${SOURCES})
 
-target_link_libraries(
-  Cm0Utilities
-  PRIVATE systemc-ams
-  PRIVATE systemc
-  PRIVATE yaml-cpp
-  )
+# target_link_libraries(
+#   Cm0Utilities
+#   PRIVATE systemc-ams
+#   PRIVATE systemc
+#   PRIVATE yaml-cpp
+#   )
 
-target_compile_definitions(
-  Cm0Utilities
-  PRIVATE TARGET_LITTLE_ENDIAN
-  PRIVATE TARGET_WORD_SIZE=4
-  )
+# target_compile_definitions(
+#   Cm0Utilities
+#   PRIVATE TARGET_LITTLE_ENDIAN
+#   PRIVATE TARGET_WORD_SIZE=4
+#   )
 
 add_library(Msp430Utilities ${SOURCES})
 

@@ -8,44 +8,44 @@
 cmake_minimum_required(VERSION 3.13)
 
 # ------ CortexM0 Test board ------
-add_library(
-  Cm0TestBoard
-  Board.hpp
-  Cm0TestBoard.hpp
-  Cm0TestBoard.cpp
-  )
+# add_library(
+#   Cm0TestBoard
+#   Board.hpp
+#   Cm0TestBoard.hpp
+#   Cm0TestBoard.cpp
+#   )
 
-target_link_libraries(
-  Cm0TestBoard
-  PRIVATE
-    Cm0Microcontroller
-    Cm0Utilities
-    PowerSystem
-    SerialDevices
-    systemc-ams
-    systemc
-    spdlog::spdlog
-)
+# target_link_libraries(
+#   Cm0TestBoard
+#   PRIVATE
+#     Cm0Microcontroller
+#     Cm0Utilities
+#     PowerSystem
+#     SerialDevices
+#     systemc-ams
+#     systemc
+#     spdlog::spdlog
+# )
 
 # ------ CortexM0 Sensor node ------
-add_library(
-  Cm0SensorNode
-  Board.hpp
-  Cm0SensorNode.hpp
-  Cm0SensorNode.cpp
-  )
+# add_library(
+#   Cm0SensorNode
+#   Board.hpp
+#   Cm0SensorNode.hpp
+#   Cm0SensorNode.cpp
+#   )
 
-target_link_libraries(
-  Cm0TestBoard
-  PRIVATE
-    Cm0Microcontroller
-    Cm0Utilities
-    PowerSystem
-    SerialDevices
-    systemc-ams
-    systemc
-    spdlog::spdlog
-)
+# target_link_libraries(
+#   Cm0TestBoard
+#   PRIVATE
+#     Cm0Microcontroller
+#     Cm0Utilities
+#     PowerSystem
+#     SerialDevices
+#     systemc-ams
+#     systemc
+#     spdlog::spdlog
+# )
 
 # ------ MSP430 Test board ------
 add_library(

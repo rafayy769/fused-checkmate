@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-add_subdirectory(cortex-m0)
+# add_subdirectory(cortex-m0)
 add_subdirectory(msp430fr5xx)
 
 set(COMMON_SOURCES
@@ -38,24 +38,24 @@ set(COMMON_SOURCES
   Microcontroller.hpp
   )
 
-add_library(Cm0Microcontroller)
-target_sources(
-  Cm0Microcontroller
-  PRIVATE
-    ${COMMON_SOURCES}
-    Cm0Microcontroller.cpp
-    Cm0Microcontroller.hpp
-  )
+# add_library(Cm0Microcontroller)
+# target_sources(
+#   Cm0Microcontroller
+#   PRIVATE
+#     ${COMMON_SOURCES}
+#     Cm0Microcontroller.cpp
+#     Cm0Microcontroller.hpp
+#   )
 
-target_link_libraries(
-  Cm0Microcontroller
-  PUBLIC
-    CortexM0Cpu
-    Cm0Peripherals
-    PowerSystem
-    systemc-ams
-    systemc
-)
+# target_link_libraries(
+#   Cm0Microcontroller
+#   PUBLIC
+#     CortexM0Cpu
+#     Cm0Peripherals
+#     PowerSystem
+#     systemc-ams
+#     systemc
+# )
 
 add_library(Msp430Microcontroller)
 target_sources(

@@ -24,5 +24,5 @@ target_link_libraries(
       systemc-ams
       systemc
     PRIVATE
-    Cm0Microcontroller # FIXME Necessary for RegisterFile, but shouldn't be here
+    # Cm0Microcontroller # FIXME Necessary for RegisterFile, but shouldn't be here
     )

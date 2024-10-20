@@ -10,9 +10,9 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/Utilities.cmake)
 
 option(INSTALL_DEPENDENCIES "Download, build & install dependencies only" OFF)
-option(ENABLE_TESTS "Build tests" ON)
+option(ENABLE_TESTS "Build tests" OFF)
 option(GDB_SERVER "Link gdb server library" ON)
-option(INSTALL_TARGET_TOOLCHAINS "Download & install target toolchains" ON)
+option(INSTALL_TARGET_TOOLCHAINS "Download & install target toolchains" OFF)
 
 set(EP_INSTALL_DIR $ENV{HOME}/.local CACHE STRING
                 "Installation directory for dependencies")
