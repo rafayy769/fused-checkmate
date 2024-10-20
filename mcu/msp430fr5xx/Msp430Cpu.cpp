@@ -15,6 +15,7 @@
 #include <systemc>
 #include <thread>
 #include <tlm>
+#include <array>
 #include "libs/make_unique.hpp"
 #include "mcu/msp430fr5xx/Msp430Cpu.hpp"
 #include "ps/ConstantCurrentState.hpp"
